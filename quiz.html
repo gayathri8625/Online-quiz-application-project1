@@ -1,0 +1,278 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Responsive Quiz App</title> 
+  <style> 
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      font-family: Arial, sans-serif; 
+    } 
+ 
+    body { 
+      background: #f4f9ff; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      padding: 10px; 
+    } 
+ 
+    .quiz-container { 
+      background: white; 
+      padding: 20px; 
+      border-radius: 15px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+      width: 100%; 
+      max-width: 500px; 
+      text-align: center; 
+    } 
+ 
+    h1 { 
+      color: #006d77; 
+      margin-bottom: 15px; 
+    } 
+  
+    .btn { 
+      display: block; 
+      width: 100%; 
+      margin: 10px 0; 
+      padding: 12px; 
+      background: #006d77; 
+      color: white; 
+      border: none; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: background 0.3s; 
+    } 
+ 
+    .btn:hover { 
+      background: #004c54; 
+    } 
+ 
+    .btn:disabled { 
+      background: #ccc; 
+      cursor: not-allowed; 
+    } 
+ 
+    .question { 
+      font-size: 1.2rem; 
+      margin-bottom: 15px; 
+    } 
+ 
+    .options { 
+      margin-bottom: 20px; 
+    } 
+ 
+    .options button { 
+      background: #4d318f; 
+      color: #518074; 
+      border: 1px solid #8d476a; 
+      margin: 5px 0; 
+      padding: 10px; 
+      border-radius: 9px; 
+      width: 100%; 
+      cursor: pointer; 
+      transition: 0.3s; 
+    } 
+ 
+    .options button:hover { 
+      background: #b2ebf2; 
+    } 
+ 
+    .options button.correct { 
+      background: #a5d6a7 !important; 
+      border: 1px solid green; 
+      color: black; 
+    } 
+ 
+    .options button.wrong { 
+      background: #ef9a9a !important; 
+      border: 1px solid red; 
+      color: black; 
+    } 
+ 
+    .hide { 
+      display: none; 
+    } 
+ 
+    @media (max-width: 600px) { 
+      .quiz-container { 
+        padding: 15px; 
+      } 
+      h1 {
+        font-size: 1.5rem; 
+      } 
+      .question { 
+        font-size: 1rem; 
+
+
+
+
+         
+      } 
+    } 
+  </style> 
+</head> 
+<body> 
+ 
+  <div class="quiz-container"> 
+    <h1>Quiz App</h1> 
+ 
+    <!-- Start Screen --> 
+    <div id="start-screen"> 
+      <p>Test your knowledge with our fun quiz!</p> 
+      <button class="btn" onclick="startQuiz()">Start Quiz</button> 
+    </div> 
+ 
+    <!-- Quiz Screen --> 
+    <div id="quiz-screen" class="hide"> 
+      <div class="question" id="question">Question text</div> 
+      <div class="options" id="options"></div> 
+      <button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Next</button> 
+    </div> 
+ 
+    <!-- Result Screen --> 
+    <div id="result-screen" class="hide"> 
+      <h2>Quiz Completed �</h2> 
+      <p id="score"></p> 
+      <button class="btn" onclick="restartQuiz()">Restart</button> 
+    </div> 
+  </div> 
+ 
+  <script> 
+    const questions = [ 
+      { 
+        question: "What does HTML stand for?", 
+        answers: [ 
+          { text: "Hyper Trainer Marking Language", correct: false }, 
+          { text: "Hyper Text Markup Language", correct: true }, 
+          { text: "Hyper Text Marketing Language", correct: false }, 
+          { text: "High Text Markup Language", correct: false } 
+        ] 
+      }, 
+      { 
+        question: "Which CSS property controls text size?", 
+        answers: [ 
+          { text: "font-style", correct: false }, 
+          { text: "text-size", correct: false }, 
+          { text: "font-size", correct: true }, 
+          { text: "text-style", correct: false } 
+        ] 
+      }, 
+      { 
+        question: "Which language is used for web apps?", 
+        answers: [ 
+          { text: "Python", correct: false }, 
+          { text: "JavaScript", correct: true }, 
+          { text: "C++", correct: false }, 
+          { text: "Java", correct: false } 
+        ] 
+      },
+      {
+      question: "What is the Role of the JavaScript Engine?",
+      answers: [
+        {text:"compilation",correct:false},
+        {text:"interpretation",correct:true},
+        {text:"parsing",correct:false},
+        {text:"compilation and parsing",correct:true}
+      ]
+      },
+      {
+        question:"Which Function Does Not Return a Value?",
+        answers: [
+            {text:"dynamic function",correct:true},
+            {text:"method",correct:false},
+            {text:"static function",correct:false},
+            {text:"processes",correct:true}
+        ]
+      },
+      {
+        question:" Which is Used to Calculate String Variables in JavaScript?",
+        answers:[
+            {text:"let",correct:false},
+            {text:"const",correct:false},
+            {text:"var",correct:true},
+            {text:"all the above",correct:true}
+        ]
+      } 
+       
+    ]; 
+ 
+    let currentQuestionIndex = 0; 
+    let score = 0; 
+ 
+    const startScreen = document.getElementById('start-screen'); 
+    const quizScreen = document.getElementById('quiz-screen'); 
+    const resultScreen = document.getElementById('result-screen'); 
+    const questionElement = document.getElementById('question'); 
+    const optionsElement = document.getElementById('options'); 
+    const nextBtn = document.getElementById('next-btn'); 
+    const scoreElement = document.getElementById('score'); 
+ 
+    function startQuiz() { 
+      startScreen.classList.add('hide'); 
+      quizScreen.classList.remove('hide'); 
+      currentQuestionIndex = 0; 
+      score = 0; 
+      showQuestion(); 
+    } 
+ 
+    function showQuestion() { 
+      resetState(); 
+      const currentQuestion = questions[currentQuestionIndex]; 
+      questionElement.textContent = currentQuestion.question; 
+ 
+      currentQuestion.answers.forEach(answer => { 
+        const button = document.createElement("button"); 
+        button.textContent = answer.text; 
+        button.classList.add("btn-option"); 
+        button.onclick = () => selectAnswer(button, answer.correct); 
+        optionsElement.appendChild(button); 
+      }); 
+    } 
+ 
+    function resetState() { 
+      nextBtn.disabled = true; 
+      optionsElement.innerHTML = ""; 
+    } 
+ 
+    function selectAnswer(button, correct) { 
+      const buttons = optionsElement.querySelectorAll("button"); 
+      buttons.forEach(btn => btn.disabled = true); 
+ 
+      if (correct) { 
+        button.classList.add("correct"); 
+        score++; 
+      } else { 
+        button.classList.add("wrong"); 
+      } 
+ 
+      nextBtn.disabled = false; 
+    } 
+ 
+    function nextQuestion() { 
+      currentQuestionIndex++; 
+      if (currentQuestionIndex < questions.length) { 
+        showQuestion(); 
+      } else { 
+        showResult(); 
+      } 
+    } 
+ 
+    function showResult() { 
+      quizScreen.classList.add("hide"); 
+      resultScreen.classList.remove("hide"); 
+      scoreElement.textContent = `You scored ${score} out of ${questions.length}`; 
+    } 
+ 
+    function restartQuiz() { 
+      resultScreen.classList.add("hide"); 
+      startScreen.classList.remove("hide"); 
+} 
+</script> 
+</body> 
+</html>
