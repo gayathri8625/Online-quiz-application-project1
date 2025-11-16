@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test Client</title>
+</head>
+<body>
+    <h1>Book Review API Tester</h1>
+    <button onclick="registerUser()">Register User</button>
+    <button onclick="loginUser()">Login User</button>
+    <button onclick="postReview()">Post Review (Requires Login)</button>
+    <button onclick="logoutUser()">Logout User</button>
+    <pre id="output">Status: Ready</pre>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        const outputEl = document.getElementById('output');
+
+        function log(message) {
+            outputEl.textContent = JSON.stringify(message, null, 2);
+        }
+
+        async function registerUser() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'testuser', password: 'password123' })
+                });
+                const data = await response.text();
+                log({ status: response.status, data: data });
+            } catch (error) {
+                log({ error: error.message });
+            }
+        }
+
+        async function loginUser() {
+            try {
+                // Browser handles setting the cookie automatically from the 'Set-Cookie' header
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'testuser', password: 'password123' })
+                });
+                const data = await response.json();
+                log({ status: response.status, data: data, note: "Check browser DevTools -> Application -> Cookies for the 'token'" });
+            } catch (error) {
+                log({ error: error.message });
+            }
+        }
+
+        async function postReview() {
+            // Browser automatically sends the 'token' cookie with this request
+            try {
+                const response = await fetch(`${API_BASE}/books/BOOK123/reviews`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rating: 5, comment: 'Great book!' })
+                });
+                const data = await response.json();
+                log({ status: response.status, data: data });
+            } catch (error) {
+                log({ error: error.message });
+            }
+        }
+        
+        async function logoutUser() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/logout`, {
+                    method: 'POST',
+                });
+                const data = await response.json();
+                log({ status: response.status, data: data, note: "Cookie 'token' should now be deleted" });
+            } catch (error) {
+                log({ error: error.message });
+            }
+        }
+    </script>
+</body>
+</html>
